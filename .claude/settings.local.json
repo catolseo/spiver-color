@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where 7z.exe)",
+      "Bash(where expand.exe)",
+      "Bash(where unshield.exe)",
+      "Bash(where 7z)",
+      "Read(//c/Program Files/7-Zip/**)",
+      "Read(//c/Program Files \\(x86\\)/**)",
+      "Bash(\"C:/Program Files/7-Zip/7z.exe\" l \"D:/FTP/prg/CPSCOLOR 4.12/ColorLAB/Disk1/data1.cab\")",
+      "Bash(where python *)",
+      "Bash(where python3 *)",
+      "Bash(where py *)",
+      "Bash(python \"C:/claude/spiver-color/tools/inspect_dbf.py\")",
+      "Bash(python tools/extract_dbf.py)",
+      "Bash(python -c ' *)",
+      "Bash(python -m http.server 8765)",
+      "Bash(curl -s http://localhost:8765/ -o /dev/null -w \"%{http_code}\\\\n\")",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(kill %1)",
+      "Bash(where gh *)",
+      "Bash(gh auth *)"
+    ]
+  }
+}

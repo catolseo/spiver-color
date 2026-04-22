@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Spiver — калькулятор колорантов CPSCOLOR</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Spiver Color</h1>
+    <p class="sub">Калькулятор формул колорантов CPSCOLOR · <span id="verLabel">загрузка…</span></p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1. Продукт</h2>
+      <div class="grid2">
+        <label>
+          Линия
+          <select id="product"></select>
+        </label>
+        <label>
+          Продукт (subproduct)
+          <input id="subproductSearch" type="search" placeholder="фильтр: VERLAX, HIDROLAX, COCCIO…" />
+          <select id="subproduct" size="6"></select>
+        </label>
+      </div>
+      <p class="muted" id="loadStatus"></p>
+    </section>
+
+    <section class="card">
+      <h2>2. Цвет</h2>
+      <div class="grid2">
+        <label>
+          Коллекция
+          <select id="series"></select>
+        </label>
+        <label>
+          Поиск (код или название)
+          <input id="search" type="search" placeholder="например: OW11P, SWAN WING, RAL…" />
+        </label>
+      </div>
+      <label>
+        Цвет
+        <select id="color" size="8"></select>
+      </label>
+    </section>
+
+    <section class="card">
+      <h2>3. Сколько замешать</h2>
+      <div class="grid2">
+        <label>
+          Количество
+          <input id="amount" type="number" value="1" min="0.01" step="0.01" />
+        </label>
+        <label>
+          Единица
+          <select id="unit">
+            <option value="L">литры</option>
+            <option value="ml">миллилитры</option>
+            <option value="kg">килограммы</option>
+            <option value="g">граммы</option>
+          </select>
+        </label>
+        <label>
+          Плотность базы, г/мл
+          <input id="density" type="number" value="1.4" min="0.5" max="2.5" step="0.01" />
+        </label>
+      </div>
+      <button id="calc">Рассчитать</button>
+    </section>
+
+    <section class="card" id="resultCard" hidden>
+      <h2>Формула на <span id="resLabel"></span></h2>
+      <div class="colorPreview">
+        <div id="colorSwatch"></div>
+        <div>
+          <div id="resColorName"></div>
+          <div class="muted" id="resProduct"></div>
+        </div>
+      </div>
+      <table id="result">
+        <thead>
+          <tr>
+            <th>Колорант</th>
+            <th>Название</th>
+            <th class="num">Капли</th>
+            <th class="num">мл</th>
+            <th class="num">граммы</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2">Итого колорантов</td>
+            <td class="num" id="totDrops">—</td>
+            <td class="num" id="totMl">—</td>
+            <td class="num" id="totG">—</td>
+          </tr>
+        </tfoot>
+      </table>
+      <p class="muted">1 капля = <span id="dropVol"></span> мл (CPSCOLOR 1/96 EU fl.oz.). База: <span id="baseName"></span>. Исходная формула — для банки <span id="canName"></span>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Источник данных</h2>
+      <p class="muted">Данные извлечены из <code>C:\G_SPIVER</code> (CPSCOLOR 4.12, Spiver 26-10-2011). Всего <span id="totalFormulas">—</span> формул по <span id="totalSubprods">—</span> продуктам в <span id="totalProducts">—</span> линиях. Файл формул нужной линии загружается по запросу.</p>
+    </section>
+  </main>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
