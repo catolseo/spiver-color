@@ -19,7 +19,25 @@
       "mcp__Claude_Preview__preview_start",
       "Bash(kill %1)",
       "Bash(where gh *)",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(gh repo *)",
+      "Bash(gh api *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://catolseo.github.io/spiver-color/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://catolseo.github.io/spiver-color/formulas/p1.js)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" https://catolseo.github.io/spiver-color/data.js)",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://www.google.com/search?q=%22CPSCOLOR%22+%22FRM.DBF%22+database+schema\")",
+      "Bash(curl -s -A \"Mozilla/5.0\" \"https://duckduckgo.com/html/?q=%22CPSCOLOR%22+%22FRM_REFL%22+database\")",
+      "WebSearch",
+      "WebFetch(domain:www.corob.com)",
+      "WebFetch(domain:www.scribd.com)",
+      "WebFetch(domain:my.innovatint.com)",
+      "Bash(where pdftotext *)",
+      "Bash(python -c \"import PyPDF2; print\\('pypdf2 ok'\\)\")",
+      "Bash(python -c \"import fitz; print\\('pymupdf ok'\\)\")",
+      "Bash(python -c \"import pdfplumber; print\\('pdfplumber ok'\\)\")",
+      "WebFetch(domain:spiver.it)",
+      "WebFetch(domain:www.spiver.it)",
+      "Bash(\"C:/Program Files/Git/mingw64/bin/pdftotext.exe\" \"D:/FTP/prg/CPSCOLOR 4.12/Manuals/English/DB-LINK.pdf\" -)"
     ]
   }
 }

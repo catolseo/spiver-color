@@ -68,10 +68,12 @@ def num(v, default=0.0):
 
 
 def rgb_int(r):
+    # SPIVER sentinel for "no data" is R=G=B=0 AND X=Y=Z=0 (also -1,-1,-1 in some rows).
+    # A real black paint still has non-zero XYZ (Y > 0), so (0,0,0) RGB with zero XYZ is not a color.
     raw = [r.get("R_MON", ""), r.get("G_MON", ""), r.get("B_MON", "")]
     if all(s != "" for s in raw):
         rr, gg, bb = (int(num(s, -1)) for s in raw)
-        if rr >= 0 and gg >= 0 and bb >= 0:
+        if rr > 0 or gg > 0 or bb > 0:
             return [rr & 0xFF, gg & 0xFF, bb & 0xFF]
     # Fall back to CIE XYZ (D65 2°) → sRGB. SPIVER stores X,Y,Z on 0-100 scale.
     x, y, z = num(r.get("X_02", 0)), num(r.get("Y_02", 0)), num(r.get("Z_02", 0))
@@ -90,9 +92,9 @@ def rgb_int(r):
     return [gamma(lr), gamma(lg), gamma(lb)]
 
 
-def compact_formula(f):
+def parse_formula_pairs(f):
     parts = f.split(",")
-    pairs = []
+    out = []
     for i in range(0, len(parts) - 1, 2):
         cid = parts[i].strip()
         amt = parts[i + 1].strip()
@@ -104,9 +106,51 @@ def compact_formula(f):
             continue
         if a <= 0:
             continue
+        out.append((cid, a))
+    return out
+
+
+def compact_formula_str(pairs):
+    chunks = []
+    for cid, a in pairs:
         a_str = str(int(a)) if a.is_integer() else str(a)
-        pairs.append(f"{cid}:{a_str}")
-    return ";".join(pairs)
+        chunks.append(f"{cid}:{a_str}")
+    return ";".join(chunks)
+
+
+def synthesize_rgb(pairs, cnt_rgb, can_units):
+    """Subtractive paint-mix approximation in linear light, over a white base.
+
+    The DB stores each colorant as its visual swatch hex (full-strength, no base).
+    For a preview we want: how does the base look after tinting with these drops?
+    Model: each colorant acts as a filter with transmittance = srgb_linear(cnt_rgb).
+    Applied in proportion to its volume fraction; rest is untinted white base.
+    """
+    total = sum(a for _, a in pairs)
+    if total <= 0:
+        return None
+    colorant_frac = min(1.0, total / can_units) if can_units else 1.0
+
+    def srgb_to_linear(c):
+        c = c / 255
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    def linear_to_srgb(c):
+        c = max(0.0, min(1.0, c))
+        c = 12.92 * c if c <= 0.0031308 else 1.055 * (c ** (1 / 2.4)) - 0.055
+        return round(max(0.0, min(1.0, c)) * 255)
+
+    mix = [0.0, 0.0, 0.0]
+    for cid, a in pairs:
+        rgb = cnt_rgb.get(cid)
+        if not rgb:
+            continue
+        w = a / total
+        for i, ch in enumerate(rgb):
+            mix[i] += w * srgb_to_linear(ch)
+    # blend: colorant mean color weighted by colorant_frac, plus white base for the rest
+    result = [colorant_frac * mix[i] + (1 - colorant_frac) * 1.0 for i in range(3)]
+    return [linear_to_srgb(v) for v in result]
 
 
 def write_js(path, var_assign, obj):
@@ -143,6 +187,10 @@ def main():
         }
         for cid, c in sorted(cnts.items(), key=lambda x: int(x[0]))
     ]
+    cnt_rgb = {
+        cid: [int(num(c["R_MON"])) & 0xFF, int(num(c["G_MON"])) & 0xFF, int(num(c["B_MON"])) & 0xFF]
+        for cid, c in cnts.items()
+    }
 
     # bases are scoped by (PROD_KEY, SUBP_KEY); key as "prd:sp:id" with "" for global
     out_bases = {}
@@ -180,10 +228,14 @@ def main():
                 continue
             sp_formula_count = 0
             for r in read_dbf(frm_path):
-                cf = compact_formula(r["FORMULA"])
-                if not cf:
+                pairs = parse_formula_pairs(r["FORMULA"])
+                if not pairs:
                     continue
                 rgb = rgb_int(r)
+                if rgb is None:
+                    can = cans.get(r["CAN_ID"])
+                    can_units = (num(can["NOM_Q"]) / drop_ml) if can else 0
+                    rgb = synthesize_rgb(pairs, cnt_rgb, can_units)
                 product_formulas.append(
                     [
                         sp["ID"],
@@ -192,7 +244,7 @@ def main():
                         r.get("KEY3", ""),
                         r["BASE_ID"],
                         r["CAN_ID"],
-                        cf,
+                        compact_formula_str(pairs),
                         rgb,
                     ]
                 )
